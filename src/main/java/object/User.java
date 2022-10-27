@@ -1,4 +1,4 @@
-package Object;
+package object;
 
 public class User {
     public int profileIconId;
@@ -12,7 +12,7 @@ public class User {
     public int leaguePoints;
     public int wins;
     public int losses;
- //"queueType": "RANKED_SOLO_5x5",
+    //"queueType": "RANKED_SOLO_5x5",
     public String queueType;
     public User(String nickname) {
         this.nickname = nickname;

@@ -1,4 +1,4 @@
-package Object;
+package object;
 
 public class Champion {
     public String id;

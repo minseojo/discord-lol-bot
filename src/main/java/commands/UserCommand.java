@@ -4,7 +4,7 @@ import api.RiotApi;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import Object.User;
+import object.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -14,6 +14,7 @@ import java.util.LinkedList;
 
 public class UserCommand extends ListenerAdapter {
     private final static String RIOT_API_KEY = "라이엇 개인용 API 키";
+
     private final static RiotApi riotApi = new RiotApi();
     private final static String LOL_VERSION = "12.17.1";
     @Override
@@ -121,5 +122,4 @@ public class UserCommand extends ListenerAdapter {
             return list;
         }
     }
-
 }
