@@ -1,6 +1,6 @@
 package controller;
 
-import commands.UserCommand;
+import command.UserCommand;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -10,7 +10,7 @@ import javax.security.auth.login.LoginException;
 
 
 public class Main  extends ListenerAdapter {
-    private final static String discordBotToken = "디스코드 봇 토큰 값";
+    private final static String discordBotToken = "개인 디코봇 토큰 값";
     public static JDA jda;
 
     public static void main(String[] args) throws LoginException {
