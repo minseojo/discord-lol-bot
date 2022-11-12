@@ -1,8 +1,8 @@
 package object;
 
 public class Champion {
-    public String id;
-    public String name;
-    public String iamge;
+    private String id;
+    private String name;
+    private String iamge;
 
 }

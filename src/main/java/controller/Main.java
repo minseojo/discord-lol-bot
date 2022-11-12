@@ -10,7 +10,7 @@ import javax.security.auth.login.LoginException;
 
 
 public class Main  extends ListenerAdapter {
-    private final static String discordBotToken = "개인 디코봇 토큰 값";
+    private final static String discordBotToken = "MTAzNDQzNzUyMTQ0NDE4NDE0NQ.GbapFa.YeZ1NFB_rslzQ1AALH3BPS4oRBjBs0fLTjsvos";
     public static JDA jda;
 
     public static void main(String[] args) throws LoginException {

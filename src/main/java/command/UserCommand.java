@@ -14,8 +14,8 @@ import java.net.URL;
 import java.util.LinkedList;
 
 public class UserCommand extends ListenerAdapter {
-    private final static String RIOT_API_KEY = "라이엇 개인용 API 키";
-
+    //private final static String RIOT_API_KEY = "라이엇 개인용 API 키";
+    private final static String RIOT_API_KEY = "RGAPI-80841738-025f-47c3-a36b-0a950b945ccf";
     private final static RiotApi riotApi = new RiotApi();
     private final static String LOL_VERSION = "12.17.1";
     @Override
@@ -39,6 +39,7 @@ public class UserCommand extends ListenerAdapter {
 
             User user = new User(nickname);
             user = getSummonerInfo(user);
+            System.out.println(user);
             if(user == null) {
                 e.getChannel().sendMessage("유저가 명확하지 않습니다.").queue();
                 return;
@@ -47,27 +48,27 @@ public class UserCommand extends ListenerAdapter {
 
             EmbedBuilder eb = new EmbedBuilder();
             eb.setAuthor("롤 전적 검색");
-            eb.setTitle(user.nickname.replace("%20", " "), "https://www.op.gg/summoners/kr/" + nickname);
-            eb.setThumbnail("https://ddragon.leagueoflegends.com/cdn/" + LOL_VERSION + "/img/profileicon/" + user.profileIconId + ".png");
-            eb.setDescription(String.valueOf(user.summonerLevel) + " 레벨");
+            eb.setTitle(user.getNickname().replace("%20", " "), "https://www.op.gg/summoners/kr/" + nickname);
+            eb.setThumbnail("https://ddragon.leagueoflegends.com/cdn/" + LOL_VERSION + "/img/profileicon/" + user.getProfileIconId() + ".png");
+            eb.setDescription(String.valueOf(user.getSummonerLevel()) + " 레벨");
             eb.setColor(Color.yellow);
 
 
             for(int i=0; i< list.size(); i++) {
                 User tempUser = (User) list.get(i);
-                Double winRate = Double.valueOf(tempUser.wins + tempUser.losses);
-                winRate = tempUser.wins / winRate * 100;
+                Double winRate = Double.valueOf(tempUser.getWins() + tempUser.getLosses());
+                winRate = tempUser.getWins() / winRate * 100;
                 winRate = Double.valueOf(Math.round(winRate));
 
-                if(tempUser.queueType.equals("RANKED_SOLO_5x5")) {
-                    eb.addField("솔로 랭크   " + tempUser.tier + "  " + tempUser.rank + "  " + tempUser.leaguePoints + "LP", String.valueOf(tempUser.wins) + " 승 " + String.valueOf(tempUser.losses) + " 패 / " + winRate + "%", false);
+                if(tempUser.getQueueType().equals("RANKED_SOLO_5x5")) {
+                    eb.addField("솔로 랭크   " + tempUser.getTier() + "  " + tempUser.getRank() + "  " + tempUser.getLeaguePoints() + "LP", String.valueOf(tempUser.getWins()) + " 승 " + String.valueOf(tempUser.getLosses()) + " 패 / " + winRate + "%", false);
                 }
-                if(tempUser.queueType.equals("RANKED_FLEX_SR"))
-                    eb.addField("자유 랭크   " +tempUser.tier + "  " + tempUser.rank + "  " + tempUser.leaguePoints + "LP", String.valueOf(tempUser.wins) + " 승 " + String.valueOf(tempUser.losses) + " 패 / " + winRate + "%", false);
+                if(tempUser.getQueueType().equals("RANKED_FLEX_SR"))
+                    eb.addField("자유 랭크   " +tempUser.getTier() + "  " + tempUser.getRank() + "  " + tempUser.getLeaguePoints() + "LP", String.valueOf(tempUser.getWins()) + " 승 " + String.valueOf(tempUser.getLosses()) + " 패 / " + winRate + "%", false);
             }
-           // eb.addField(" \n" + "\n " +"최근 5경기 기록", "", true);
+
             // 최근 게임 기록 ID
-            LinkedList recentGameMatchIdList = getPersonalRecentGameHistory(user, 0, 5);
+            LinkedList recentGameMatchIdList = getPersonalRecentGameHistory(user, 0, 10);
 
             // 최근 게임 리스트 (최근 게임 기록 ID를 가져와서 정보 가져오기)
             LinkedList matchList = new LinkedList();
@@ -75,27 +76,23 @@ public class UserCommand extends ListenerAdapter {
                 matchList = getPersonalGameHistory(user, (String) recentGameMatchIdList.get(i), matchList);
             }
 
-            Ingame[] ingame = new Ingame[5];
-            Double[] kda = new Double[5];
+            Ingame[] ingame = new Ingame[recentGameMatchIdList.size()];
             int winCount = 0;
             int loseCount = 0;
+            String str = "";
             for(int i=0; i<matchList.size(); i++) {
                 ingame[i] = (Ingame) matchList.get(i);
-                kda[i] = Math.round(Double.valueOf(ingame[i].kills + ingame[i].assists) / Double.valueOf(ingame[i].deaths) * 10) / 10.0;
-                if(ingame[i].win.equals("승리")) winCount += 1;
+                str += ingame[i].getWin() + " " + ingame[i].getChampionName() + " " + String.valueOf(ingame[i].getKills()) +"/" + String.valueOf(ingame[i].getDeaths()) + "/" + String.valueOf(ingame[i].getAssists()) + "  평점: " + ingame[i].getKda() + "\n";
+                if(ingame[i].getWin().equals("승리")) winCount += 1;
                 else loseCount += 1;
             }
 
-            String https = "https://ddragon.leagueoflegends.com/cdn/12.20.1/img/champion/" + ingame[0].championName + ".png";
-            eb.addField("최근 5경기 기록",winCount + loseCount + "전 " + winCount+ "승 " + loseCount + "패" , false);
-            eb.setFooter(ingame[0].win+ " " + String.valueOf(ingame[0].kills) +"/" + String.valueOf(ingame[0].deaths) + "/" + String.valueOf(ingame[0].assists) + "  평점: " + kda[0] + "\n"
-                    + ingame[1].win+ " " + String.valueOf(ingame[1].kills) +"/" + String.valueOf(ingame[1].deaths) + "/" + String.valueOf(ingame[1].assists) + "  평점:" + kda[1] + "\n"
-                    + ingame[2].win+ " " + String.valueOf(ingame[2].kills) +"/" + String.valueOf(ingame[2].deaths) + "/" + String.valueOf(ingame[2].assists) + "  평점:" + kda[2] + "\n"
-                    + ingame[3].win+ " " + String.valueOf(ingame[3].kills) +"/" + String.valueOf(ingame[3].deaths) + "/" + String.valueOf(ingame[3].assists) + "  평점:" + kda[3] + "\n"
-                    + ingame[4].win+ " " + String.valueOf(ingame[4].kills) +"/" + String.valueOf(ingame[4].deaths) + "/" + String.valueOf(ingame[4].assists) + "  평점:" + kda[4]);
+            String https = "https://ddragon.leagueoflegends.com/cdn/12.20.1/img/champion/" + ingame[0].getChampionName() + ".png";
+            eb.addField("최근" + winCount + loseCount + "경기 기록",winCount + loseCount + "전 " + winCount+ "승 " + loseCount + "패" , false);
+            eb.setFooter(str);
+
             e.getChannel().sendMessageEmbeds(eb.build()).queue();
         }
-
     }
 
     // 소환사 정보 가져오기
@@ -103,7 +100,8 @@ public class UserCommand extends ListenerAdapter {
         JSONObject obj = null;
         String[] info = {"id", "accountId", "puuid", "profileIconId", "summonerLevel"};
         try {
-            URL url = new URL("https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/"+ user.nickname+"?api_key="+RIOT_API_KEY);
+            URL url = new URL("https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/"+ user.getNickname()+"?api_key="+RIOT_API_KEY);
+
             obj = riotApi.getRiotApiJsonObject(url);
 
             // 응답코드가 200이 아닌경우 -> 존재하는 닉네임이 아닌경우
@@ -112,13 +110,13 @@ public class UserCommand extends ListenerAdapter {
             }
             
             // 유저 정보 등록
-            user.id = obj.getString("id");
-            user.accountId = obj.getString("accountId");
-            user.puuid = obj.getString("puuid");
-            user.profileIconId = obj.getInt("profileIconId");
-            user.summonerLevel = obj.getInt("summonerLevel");
-            System.out.println("id: " + user.id);
-            System.out.println("puuid: " + user.puuid);
+            user.setId(obj.getString("id"));;
+            user.setAccountId(obj.getString("accountId"));
+            user.setPuuid(obj.getString("puuid"));
+            user.setProfileIconId(obj.getInt("profileIconId"));
+            user.setSummonerLevel(obj.getInt("summonerLevel"));
+           // System.out.println("id: " + user.id);
+        //    System.out.println("puuid: " + user.puuid);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -134,7 +132,7 @@ public class UserCommand extends ListenerAdapter {
         JSONArray ary = null;
         String[] info = {"tier", "rank", "leaguePoints", "wins", "losses", "queueType"};
         try {
-            URL url = new URL("https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/" + user.id +"?api_key=" + RIOT_API_KEY);
+            URL url = new URL("https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/" + user.getId() +"?api_key=" + RIOT_API_KEY);
             ary = riotApi.getRiotApiJsonArray(url);
 
             // 응답코드가 200이 아닌경우 -> 존재하는 닉네임이 아닌경우
@@ -145,13 +143,13 @@ public class UserCommand extends ListenerAdapter {
             // 유저 정보 등록하고 게임종류(솔랭, 자유랭, 더블업 등)별로 리스트에 전적 담아서 리턴
             for(int i=0; i<ary.length(); i++) {
                 JSONObject obj = ary.getJSONObject(i);
-                User tmpUser = new User(user.nickname);
-                tmpUser.tier = obj.getString("tier");
-                tmpUser.rank = obj.getString("rank");
-                tmpUser.leaguePoints = obj.getInt("leaguePoints");
-                tmpUser.wins = obj.getInt("wins");
-                tmpUser.losses = obj.getInt("losses");
-                tmpUser.queueType = obj.getString("queueType");
+                User tmpUser = new User(user.getNickname());
+                tmpUser.setTier(obj.getString("tier"));
+                tmpUser.setRank(obj.getString("rank"));
+                tmpUser.setLeaguePoints(obj.getInt("leaguePoints"));
+                tmpUser.setWins(obj.getInt("wins"));
+                tmpUser.setLosses(obj.getInt("losses"));
+                tmpUser.setQueueType(obj.getString("queueType"));
                 list.add(tmpUser);
             }
         } catch (Exception e) {
@@ -168,7 +166,7 @@ public class UserCommand extends ListenerAdapter {
         LinkedList list = new LinkedList();
         JSONArray ary = null;
         try {
-            URL url = new URL("https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/" + user.puuid + "/ids?start=" + start + "&count=" + count + "&api_key=" + RIOT_API_KEY);
+            URL url = new URL("https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/" + user.getPuuid() + "/ids?start=" + start + "&count=" + count + "&api_key=" + RIOT_API_KEY);
             ary = riotApi.getRiotApiJsonArray(url);
             // 응답코드가 200이 아닌경우 -> 존재하는 puuid가 아닌경우
             if(ary == null) {
@@ -203,28 +201,28 @@ public class UserCommand extends ListenerAdapter {
             }
 
             participants = obj.getJSONObject("info").getJSONArray("participants");
-            String summonerId = user.id, championName = "";
-            int championId = -1, kills = 0, deaths = 0, assist = 0;
+            String summonerId = user.getId(), championName = "";
+            int championId = -1, kills = 0, deaths = 0, assists = 0;
+            double kda = 0.0;
             String win = "";
             boolean isWin;
             
             for(int i=0; i<participants.length(); i++) {
-                    if(participants.getJSONObject(i).get("summonerId").equals(user.id)) {
+                    if(participants.getJSONObject(i).get("summonerId").equals(user.getId())) {
                         championId = (int) participants.getJSONObject(i).get("championId");
                         championName = (String) participants.getJSONObject(i).get("championName");
                         kills = (int) participants.getJSONObject(i).get("kills");
                         deaths = (int) participants.getJSONObject(i).get("deaths");
-                        assist = (int) participants.getJSONObject(i).get("assists");
+                        assists = (int) participants.getJSONObject(i).get("assists");
                         isWin = (boolean) participants.getJSONObject(i).get("win");
+                        kda = Math.round(Double.valueOf(kills + assists) / Double.valueOf(deaths) * 10) / 10.0;
                         if(isWin) win = "승리";
                         else win = "패배";
                         break;
                     }
             }
-            Ingame ingame = new Ingame(user.id, championName, championId, kills, deaths, assist, win);
+            Ingame ingame = new Ingame(user.getId(), championName, championId, kills, deaths, assists, kda, win);
             list.add(ingame);
-
-            System.out.println(ingame.toString());
 
         } catch (Exception e) {
             e.printStackTrace();
