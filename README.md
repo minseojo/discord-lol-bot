@@ -11,3 +11,5 @@
 1. 최근 46경기 기록 > 최근 10경기 기록 바꿔야함. String(win+lose)를 integer(win)+integer(lose)로
 
 2. 최근 전적에서 킬/데스/어시스트에서 데스가 0인 경우 평점을 Perfect로 예외 처리해야 함.
+
+3. UserCommand.class 에서 종종 null을 리턴한다. 빈 배열 또는 Optional로 감싸주도록 변경 해야함
