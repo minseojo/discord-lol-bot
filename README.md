@@ -1,8 +1,9 @@
 # discordLolBot
+### 실행 화면
 ![image](https://user-images.githubusercontent.com/64322765/201470093-81a20107-8fe0-4e4e-a398-ca0dfc5e0179.png)
 
 ---
-### 수정해야 할 부분.
+### 수정해야 할 부분
 
 1. 최근 46경기 기록 > 최근 10경기 기록 바꿔야함. String(win+lose)를 integer(win)+integer(lose)로
 
